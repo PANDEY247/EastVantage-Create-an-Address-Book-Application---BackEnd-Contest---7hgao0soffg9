@@ -44,10 +44,37 @@ Output:
   }
 }
 */
-createAddress = async (req, res, next) => {
-  // Write your code here
-};
+const createAddress = async (req, res, next) => {
+  const {name,address, latitude , longitude} = req.body;
 
+  if(!name || !address || !latitude || !latitude) {
+    return res.status(400).json({error: 'Please provide all required information'});
+  }
+  const location ={
+    type: "Point",
+    coordinates :[longitude,latitude]
+  };
+  
+  try{
+    const newAddress =new Address({
+      name,
+      address,
+      location
+    });
+
+    await newAddress.save();
+
+    return res.status(201).json({
+      message: 'Adress created successfuly',
+      address: newAddress
+
+    });
+
+  }catch (error){ 
+    return next(error);
+
+  }
+};
 // Update an existing address
 /*
 Instructions:
@@ -85,8 +112,44 @@ Sample output:
   }
 }
 */
-updateAddress = async (req, res, next) => {
-  // Write your code here
+const updateAddress = async (req, res, next) => {
+  const { name, address, latitude, longitude } = req.body;
+  const { id } = req.params;
+
+  if (!name || !address || !latitude || !longitude) {
+    return res.status(400).json({ error: 'Please provide all required information' });
+  }
+
+  const location = {
+    type: 'Point',
+    coordinates: [longitude, latitude]
+  };
+
+  try {
+    const updatedAddress = await Address.findByIdAndUpdate(
+      id,
+      {
+        name,
+        address,
+        location
+      },
+      { new: true }
+    );
+
+    if (!updatedAddress) {
+      return res.status(404).json({ error: 'Address not found' });
+    }
+
+    return res.status(200).json({
+      message: 'Address updated successfully',
+      address: updatedAddress
+    });
+  } catch (error) {
+    return next(error);
+  }
+
+
+
 };
 
 // Delete an existing address
@@ -103,7 +166,14 @@ Sample Output:
 }
 */
 deleteAddress = async (req, res, next) => {
-  //Write your code here
+  const { id } = req.params;
+  try {
+    await Address.findByIdAndRemove(id);
+    return res.json({ message: 'Address deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
 };
 
 // Get addresses within a given distance and location
@@ -157,6 +227,31 @@ Content-Type: application/json
 */
 getAddressesWithinDistance = async (req, res, next) => {
   //Write your code here
+  const { latitude, longitude, distance } = req.query;
+
+  if (!latitude || !longitude || !distance) {
+    return res.status(400).json({ error: 'Please provide all required query parameters' });
+  }
+
+  const coordinates = [parseFloat(longitude), parseFloat(latitude)];
+
+  try {
+    const addresses = await Address.find({
+      location: {
+        $near: {
+          $geometry: {
+            type: 'Point',
+            coordinates
+          },
+          $maxDistance: parseInt(distance)
+        }
+      }
+    });
+
+    return res.status(200).json({ addresses });
+  } catch (error) {
+    return next(error);
+  }
 };
 
 module.exports = {createAddress, updateAddress, deleteAddress, getAddressesWithinDistance}
