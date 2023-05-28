@@ -28,8 +28,10 @@ const addressSchema = new mongoose.Schema({
     coordinates: {
       type: [Number],
       required: true
-    }
-  }
+    },
+  },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
 addressSchema.index({ location: '2dsphere' });

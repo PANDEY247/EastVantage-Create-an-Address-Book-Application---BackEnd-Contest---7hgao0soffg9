@@ -47,14 +47,14 @@ Output:
 createAddress = async (req, res, next) => {
   const { name, address, latitude, longitude } = req.body;
 
-  if (!name || !address || !latitude || !latitude) {
+  if (!name || !address || !latitude || !longitude) {
     return res
       .status(400)
       .json({ error: "Please provide all required information" });
   }
   const location = {
     type: "Point",
-    coordinates: [longitude, latitude],
+    coordinates: [parseFloat(longitude), parseFloat( latitude)],
   };
 
   try {
@@ -123,7 +123,7 @@ updateAddress = async (req, res, next) => {
 
   const location = {
     type: "Point",
-    coordinates: [longitude, latitude],
+    coordinates: [parseFloat(longitude), parseFloat(latitude)],
   };
 
   try {
