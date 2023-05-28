@@ -1,4 +1,4 @@
-const Address = require('../models/Address.js');
+const Address = require("../models/Address.js");
 
 // Create a new address
 /*
@@ -44,35 +44,34 @@ Output:
   }
 }
 */
-const createAddress = async (req, res, next) => {
-  const {name,address, latitude , longitude} = req.body;
+createAddress = async (req, res, next) => {
+  const { name, address, latitude, longitude } = req.body;
 
-  if(!name || !address || !latitude || !latitude) {
-    return res.status(400).json({error: 'Please provide all required information'});
+  if (!name || !address || !latitude || !latitude) {
+    return res
+      .status(400)
+      .json({ error: "Please provide all required information" });
   }
-  const location ={
+  const location = {
     type: "Point",
-    coordinates :[longitude,latitude]
+    coordinates: [longitude, latitude],
   };
-  
-  try{
-    const newAddress =new Address({
+
+  try {
+    const newAddress = new Address({
       name,
       address,
-      location
+      location,
     });
 
     await newAddress.save();
 
     return res.status(201).json({
-      message: 'Adress created successfuly',
-      address: newAddress
-
+      message: "Adress created successfuly",
+      address: newAddress,
     });
-
-  }catch (error){ 
+  } catch (error) {
     return next(error);
-
   }
 };
 // Update an existing address
@@ -112,17 +111,19 @@ Sample output:
   }
 }
 */
-const updateAddress = async (req, res, next) => {
+updateAddress = async (req, res, next) => {
   const { name, address, latitude, longitude } = req.body;
   const { id } = req.params;
 
   if (!name || !address || !latitude || !longitude) {
-    return res.status(400).json({ error: 'Please provide all required information' });
+    return res
+      .status(400)
+      .json({ error: "Please provide all required information" });
   }
 
   const location = {
-    type: 'Point',
-    coordinates: [longitude, latitude]
+    type: "Point",
+    coordinates: [longitude, latitude],
   };
 
   try {
@@ -131,25 +132,22 @@ const updateAddress = async (req, res, next) => {
       {
         name,
         address,
-        location
+        location,
       },
       { new: true }
     );
 
     if (!updatedAddress) {
-      return res.status(404).json({ error: 'Address not found' });
+      return res.status(404).json({ error: "Address not found" });
     }
 
     return res.status(200).json({
-      message: 'Address updated successfully',
-      address: updatedAddress
+      message: "Address updated successfully",
+      address: updatedAddress,
     });
   } catch (error) {
     return next(error);
   }
-
-
-
 };
 
 // Delete an existing address
@@ -169,7 +167,7 @@ deleteAddress = async (req, res, next) => {
   const { id } = req.params;
   try {
     await Address.findByIdAndRemove(id);
-    return res.json({ message: 'Address deleted successfully' });
+    return res.json({ message: "Address deleted successfully" });
   } catch (error) {
     console.error(error);
     return next(error);
@@ -226,11 +224,12 @@ Content-Type: application/json
 }
 */
 getAddressesWithinDistance = async (req, res, next) => {
-  //Write your code here
   const { latitude, longitude, distance } = req.query;
 
   if (!latitude || !longitude || !distance) {
-    return res.status(400).json({ error: 'Please provide all required query parameters' });
+    return res
+      .status(400)
+      .json({ error: "Please provide all required query parameters" });
   }
 
   const coordinates = [parseFloat(longitude), parseFloat(latitude)];
@@ -240,12 +239,12 @@ getAddressesWithinDistance = async (req, res, next) => {
       location: {
         $near: {
           $geometry: {
-            type: 'Point',
-            coordinates
+            type: "Point",
+            coordinates,
           },
-          $maxDistance: parseInt(distance)
-        }
-      }
+          $maxDistance: parseInt(distance),
+        },
+      },
     });
 
     return res.status(200).json({ addresses });
@@ -254,4 +253,9 @@ getAddressesWithinDistance = async (req, res, next) => {
   }
 };
 
-module.exports = {createAddress, updateAddress, deleteAddress, getAddressesWithinDistance}
+module.exports = {
+  createAddress,
+  updateAddress,
+  deleteAddress,
+  getAddressesWithinDistance,
+};

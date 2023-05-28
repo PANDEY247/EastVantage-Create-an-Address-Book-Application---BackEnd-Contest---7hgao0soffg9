@@ -17,32 +17,22 @@ Here's a sample object for this schema:
 }
 */
 const addressSchema = new mongoose.Schema({
-  street:{
-    type: String,
-    required: true
-
-  },
-  city:{
-    type: String,
-    required: true
-    
-  },
-  state:{
-    type: String,
-    required: true
-    
-  },
-  country:{
-    type: String,
-    required: true
-    
-  },
-  postalCode:{
-    type: String,
-    required: true
-    
+  name: { type: String, required: true },
+  address: { type: String, required: true },
+  location: {
+    type: {
+      type: String,
+      enum: ['Point'],
+      required: true
+    },
+    coordinates: {
+      type: [Number],
+      required: true
+    }
   }
 });
+
+addressSchema.index({ location: '2dsphere' });
 
 const Address = mongoose.model('Address', addressSchema);
 
